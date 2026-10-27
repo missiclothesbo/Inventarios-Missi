@@ -1,0 +1,291 @@
+@import "tailwindcss";
+
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  color: #111111;
+  background: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #ffffff;
+  color: #111111;
+}
+
+/* ---------- Táctil y móvil ---------- */
+/* Sin retardo de doble toque en controles. */
+a,
+button,
+select,
+input,
+textarea,
+label,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+/* Textos largos (nombres de modelos, correos, referencias) nunca empujan el ancho de la página. */
+h1,
+h2,
+h3,
+p,
+li,
+dd,
+dt {
+  overflow-wrap: anywhere;
+}
+
+/* En tablas no se reduce el ancho mínimo de columna (las cifras no se parten). */
+td,
+th {
+  overflow-wrap: break-word;
+}
+
+/* En teléfonos y pantallas táctiles (iPad incluido), 16 px en campos evita el zoom automático de iOS
+   al enfocar. (Va fuera de las capas de Tailwind, por eso prevalece sobre text-sm sin !important.) */
+@media (max-width: 767px), (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Foco visible también en controles personalizados. */
+:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* ---------- Impresión de comanda ---------- */
+.comanda-print {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A5;
+    margin: 10mm;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  /* Al imprimir una comanda se oculta toda la app y solo sale la comanda
+     (que vive en un portal hijo directo de <body>). */
+  body.printing-comanda > #root {
+    display: none !important;
+  }
+
+  body.printing-comanda .comanda-print {
+    display: block !important;
+  }
+}
+
+/* ---------- Impresión del recibo (80 mm) ---------- */
+.recibo-print {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 4mm;
+  }
+
+  body.printing-recibo > #root {
+    display: none !important;
+  }
+
+  body.printing-recibo .recibo-print {
+    display: block !important;
+    width: 72mm;
+    color: #000;
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .recibo-print p {
+    margin: 1px 0;
+  }
+
+  .recibo-centro {
+    text-align: center;
+  }
+
+  .recibo-grande {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .recibo-linea {
+    border-top: 1px dashed #000;
+    margin: 4px 0 !important;
+  }
+
+  .recibo-der {
+    float: right;
+  }
+
+  .recibo-total {
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .recibo-item {
+    margin: 3px 0;
+  }
+}
+
+/* ---------- Impresión de reportes (A4 horizontal) ---------- */
+.reporte-print {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm 10mm 14mm;
+    /* Numeración de páginas: la soportan los navegadores con margin boxes (p. ej. Chrome/Edge). */
+    @bottom-right {
+      content: "Página " counter(page) " de " counter(pages);
+      font-size: 9px;
+      color: #555;
+    }
+  }
+
+  body.printing-reporte > #root {
+    display: none !important;
+  }
+
+  body.printing-reporte .reporte-print {
+    display: block !important;
+    color: #000;
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .reporte-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #000;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+
+  .reporte-marca {
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+
+  .reporte-titulo {
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  .reporte-meta p,
+  .reporte-resumen p {
+    margin: 1px 0;
+  }
+
+  .reporte-resumen {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px 14px;
+    margin-bottom: 8px;
+    border: 1px solid #999;
+    padding: 6px;
+  }
+
+  .reporte-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+  }
+
+  /* Los encabezados se repiten en cada página impresa */
+  .reporte-tabla thead {
+    display: table-header-group;
+  }
+
+  .reporte-tabla tr {
+    page-break-inside: avoid;
+  }
+
+  .reporte-tabla th,
+  .reporte-tabla td {
+    border-bottom: 1px solid #ccc;
+    padding: 3px 4px;
+    text-align: left;
+    vertical-align: top;
+    word-break: break-word;
+  }
+
+  .reporte-tabla th {
+    background: #eee !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    border-bottom: 1px solid #000;
+  }
+
+  .reporte-num {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .reporte-vacio {
+    text-align: center;
+    font-style: italic;
+  }
+
+  .reporte-nota {
+    margin-top: 8px;
+    font-size: 9px;
+    color: #333;
+  }
+
+  .reporte-pie {
+    margin-top: 6px;
+    font-size: 8px;
+    color: #666;
+    text-align: center;
+  }
+}

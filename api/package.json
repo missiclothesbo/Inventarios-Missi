@@ -1,0 +1,19 @@
+{
+  "name": "missi-api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "API de MISSI sobre Cloudflare Workers + D1. SIN script de deploy a proposito: desplegar requiere aprobacion explicita.",
+  "scripts": {
+    "types": "wrangler types",
+    "typecheck": "tsc --noEmit",
+    "db:reset:local": "node -e \"process.env.MISSI_LOCAL_STATE=process.env.MISSI_LOCAL_STATE||'.wrangler/test-state'; import('./scripts/reset-local-db.mjs')\"",
+    "dev": "wrangler dev --local --port 8790 --persist-to .wrangler/state",
+    "test": "node --test --test-concurrency=1 test/api.test.mjs test/local-account.test.mjs",
+    "predev": "node scripts/predev.mjs"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.2",
+    "wrangler": "^4.151.1"
+  }
+}

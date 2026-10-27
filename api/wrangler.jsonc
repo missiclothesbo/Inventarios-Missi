@@ -1,0 +1,27 @@
+{
+  // IMPORTANTE: nombre distinto al Worker de produccion ("fancy-firefly-9028") a proposito.
+  // Al desplegar (fase aprobada aparte) se cambiara el nombre para reemplazarlo. No hay script de deploy.
+  "name": "missi-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-18",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  "vars": {
+    // Origenes del frontend permitidos por CORS (separados por coma). Local por defecto.
+    "ALLOWED_ORIGINS": "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:4173",
+    "SESSION_TTL_HOURS": "12"
+  },
+  // Fotos de productos (una por modelo). Crear el bucket una vez en Cloudflare antes de desplegar:
+  //   npx wrangler r2 bucket create missi-product-photos
+  "r2_buckets": [{ "binding": "PHOTOS", "bucket_name": "missi-product-photos" }],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "inventarios-missi",
+      // Mismo ID que la base real. Los comandos locales (--local) NO la tocan; nunca usar --remote sin aprobacion.
+      "database_id": "2384fad4-6c9d-4e60-821e-91ce3ac89cf5",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

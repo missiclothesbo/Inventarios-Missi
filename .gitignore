@@ -1,0 +1,41 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Variables locales (contienen claves)
+.env
+.env.*
+!.env.example
+
+# Respaldos con datos del negocio y resultados de auditoría
+backups/
+d1-audit-output.txt
+.dev.vars
+.wrangler/
+
+# Datos locales y respaldos (contienen ventas, clientes y hashes de contraseñas): nunca se suben
+backups/
+api/.wrangler/
+api/.dev.vars*
+d1-audit-output.txt
