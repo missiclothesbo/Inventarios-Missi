@@ -11,6 +11,7 @@ import { orgBranchesSql, requireAdmin, requireBranch, scopedBranch, type AuthUse
 import { isUniqueViolation, iso } from "../db";
 import { badRequest, conflict, HttpError, notFound, ok, readJson, type Env } from "../http";
 import { isAssertionFailure, stockChange, validateVariants } from "../inventory";
+import { requireColorsAssigned } from "./colors";
 import { lotRef, operationRef, parseRef, receiptRef, saleRef, transferRef } from "../../../shared/catalogo";
 import { int, optionalStr, queryDate, queryInt, uuid } from "../validate";
 
@@ -73,6 +74,7 @@ export async function createReceipt(request: Request, env: Env, admin: AuthUser)
     return it;
   });
   await validateVariants(env, items, (i) => `Prenda ${i + 1}`);
+  await requireColorsAssigned(env, items, (i) => `Prenda ${i + 1}`);
 
   const byKey = "(SELECT id FROM recepciones WHERE idempotency_key = ?)";
   const total = items.reduce((a, it) => a + it.qty, 0);

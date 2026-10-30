@@ -36,6 +36,7 @@ import {
 } from "../../services/product.service";
 import ProductThumb from "../../components/ProductThumb";
 import { branchLabel } from "../../lib/ubicaciones";
+import { colorsForProduct } from "../../lib/colores";
 import {
   LOT_STATE_CLASS,
   LOT_STATE_TEXT,
@@ -369,6 +370,8 @@ function Inventario() {
 
       const product = await createProduct(
         productName,
+        0,
+        selectedNewColors,
       );
 
       await createInventoryVariants(
@@ -986,7 +989,7 @@ function Inventario() {
                     Modelo
                     <select
                       value={l.productoId}
-                      onChange={(e) => editLine(l.key, { productoId: e.target.value })}
+                      onChange={(e) => editLine(l.key, { productoId: e.target.value, colorId: "" })}
                       disabled={saving}
                       className="mt-1 min-h-11 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-black outline-none focus:border-black"
                     >
@@ -1019,7 +1022,7 @@ function Inventario() {
                       className="mt-1 min-h-11 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-black outline-none focus:border-black"
                     >
                       <option value="">Color</option>
-                      {colors.map((color) => (
+                      {colorsForProduct(colors, l.productoId).map((color) => (
                         <option key={color.id} value={color.id}>{color.nombre}</option>
                       ))}
                     </select>

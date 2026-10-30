@@ -1,6 +1,7 @@
 export interface Env {
   DB: D1Database;
-  PHOTOS: R2Bucket;
+  /** Opcional: sin R2 activado en la cuenta, las fotos de productos quedan desactivadas (el resto funciona). */
+  PHOTOS?: R2Bucket;
   ALLOWED_ORIGINS: string;
   SESSION_TTL_HOURS: string;
 }

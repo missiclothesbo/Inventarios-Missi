@@ -3,6 +3,7 @@ import { ArrowLeftRight, LoaderCircle, Plus, Trash2 } from "lucide-react";
 
 import { useSucursal } from "../../context/useSucursal";
 import { getInventory, type InventoryItem } from "../../services/inventory.service";
+import { colorsForProduct } from "../../lib/colores";
 import {
   getColors,
   getProducts,
@@ -284,7 +285,7 @@ function Traspasos() {
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-5 lg:gap-4">
-          <select aria-label="Modelo" value={productId} onChange={(event) => setProductId(event.target.value)} className={`${INPUT_CLASS} col-span-2 lg:col-span-1`}>
+          <select aria-label="Modelo" value={productId} onChange={(event) => { setProductId(event.target.value); setColorId(""); }} className={`${INPUT_CLASS} col-span-2 lg:col-span-1`}>
             <option value="">Modelo</option>
             {products.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
           </select>
@@ -294,7 +295,7 @@ function Traspasos() {
           </select>
           <select aria-label="Color" value={colorId} onChange={(event) => setColorId(event.target.value)} className={INPUT_CLASS}>
             <option value="">Color</option>
-            {colors.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+            {colorsForProduct(colors, productId).map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
           </select>
           <input aria-label="Cantidad" type="number" inputMode="numeric" min="1" value={quantity} onChange={(event) => setQuantity(event.target.value)} className={INPUT_CLASS} />
           <button type="button" onClick={addItem} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-black px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800">

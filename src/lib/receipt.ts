@@ -1,7 +1,4 @@
-/**
- * Formato del recibo. Los datos vienen de la respuesta confirmada del servidor; aquí solo se presentan.
- * La hora siempre se muestra en Bolivia (America/La_Paz, UTC-4), sin importar la zona del equipo.
- */
+
 
 export const BOLIVIA_TZ = "America/La_Paz";
 

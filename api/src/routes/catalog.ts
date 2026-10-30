@@ -2,6 +2,7 @@ import { orgBranchesSql, requireAdmin, requireBranch, scopedBranch, type AuthUse
 import { isStockViolation, isUniqueViolation, iso } from "../db";
 import { badRequest, conflict, HttpError, notFound, ok, readJson, type Env } from "../http";
 import { stockChange, validateVariants } from "../inventory";
+import { requireColorsAssigned } from "./colors";
 import { EXIT_REASONS, EXIT_REASON_LABELS } from "../../../shared/catalogo";
 import { int, money, oneOf, optionalStr, queryInt, str, uuid } from "../validate";
 
@@ -66,6 +67,8 @@ function sniffImage(b: Uint8Array): string | null {
 
 /** Sube la foto de un modelo (solo admin). Cuerpo = bytes de la imagen; reemplaza la anterior. */
 export async function uploadPhoto(request: Request, env: Env, admin: AuthUser, id: number): Promise<Response> {
+  const photos = env.PHOTOS;
+  if (!photos) throw new HttpError(503, "Las fotos de productos todavía no están activadas en este entorno.");
   const type = (request.headers.get("Content-Type") ?? "").split(";")[0].trim().toLowerCase();
   if (!PHOTO_TYPES[type]) throw new HttpError(415, "La foto debe ser JPG, PNG o WebP.");
 
@@ -81,9 +84,9 @@ export async function uploadPhoto(request: Request, env: Env, admin: AuthUser, i
   if (!product) throw notFound("Producto no encontrado.");
 
   const key = `productos/${id}/${crypto.randomUUID()}.${PHOTO_TYPES[type]}`;
-  await env.PHOTOS.put(key, bytes, { httpMetadata: { contentType: type } });
+  await photos.put(key, bytes, { httpMetadata: { contentType: type } });
   await env.DB.prepare("UPDATE productos SET foto_key = ? WHERE id = ?").bind(key, id).run();
-  if (product.foto_key) await env.PHOTOS.delete(product.foto_key);
+  if (product.foto_key) await photos.delete(product.foto_key);
 
   await env.DB
     .prepare("INSERT INTO auditoria (usuario_id, accion, entidad, entidad_id, detalle) VALUES (?, 'subir_foto', 'productos', ?, ?)")
@@ -95,6 +98,7 @@ export async function uploadPhoto(request: Request, env: Env, admin: AuthUser, i
 
 /** Foto pública (las etiquetas img no envían cabeceras de sesión). Solo lectura. */
 export async function getPhoto(env: Env, id: number): Promise<Response> {
+  if (!env.PHOTOS) throw notFound("Este modelo no tiene foto.");
   const row = await env.DB.prepare("SELECT foto_key FROM productos WHERE id = ?").bind(id).first<{ foto_key: string | null }>();
   if (!row?.foto_key) throw notFound("Este modelo no tiene foto.");
 
@@ -128,23 +132,21 @@ export async function tallas(env: Env): Promise<Response> {
   );
 }
 
-export async function colores(env: Env): Promise<Response> {
-  const { results } = await env.DB
-    .prepare("SELECT id, nombre, estado FROM colores WHERE estado = 1 ORDER BY nombre")
-    .all<{ id: number; nombre: string; estado: number }>();
-  return ok(results.map((c) => ({ ...c, estado: true })));
-}
 
 export async function createProduct(request: Request, env: Env, admin: AuthUser): Promise<Response> {
   const body = await readJson(request);
   const nombre = str(body.nombre, "nombre", 120);
   const precio = body.precio_venta === undefined ? 0 : money(body.precio_venta, "precio_venta");
+  // Colores del modelo: los indicados (activos) o, si no se indican, todos los activos (compatibilidad con la API anterior).
+  const chosen = body.colores === undefined ? null : (Array.isArray(body.colores) ? [...new Set(body.colores.map((c, i) => int(c, `colores[${i}]`)))] : (() => { throw badRequest("colores debe ser una lista."); })());
 
   try {
-    const res = await env.DB
-      .prepare("INSERT INTO productos (nombre, precio_venta) VALUES (?, ?)")
-      .bind(nombre, precio)
-      .run();
+    const [res] = await env.DB.batch([
+      env.DB.prepare("INSERT INTO productos (nombre, precio_venta) VALUES (?, ?)").bind(nombre, precio),
+      chosen === null
+        ? env.DB.prepare("INSERT OR IGNORE INTO producto_colores (producto_id, color_id) SELECT p.id, c.id FROM productos p, colores c WHERE p.nombre = ? AND c.estado = 1").bind(nombre)
+        : env.DB.prepare(`INSERT OR IGNORE INTO producto_colores (producto_id, color_id) SELECT p.id, c.id FROM productos p, colores c WHERE p.nombre = ? AND c.estado = 1 AND c.id IN (${chosen.length ? chosen.map(() => "?").join(",") : "NULL"})`).bind(nombre, ...chosen),
+    ]);
     const id = Number(res.meta.last_row_id);
     await env.DB
       .prepare("INSERT INTO auditoria (usuario_id, accion, entidad, entidad_id, detalle) VALUES (?, 'crear_producto', 'productos', ?, ?)")
@@ -248,6 +250,7 @@ export async function addStock(request: Request, env: Env, admin: AuthUser): Pro
   // Talla oficial obligatoria para pantalones nuevos (la misma regla del catálogo compartido).
   try {
     await validateVariants(env, [{ producto: v.producto, talla: v.talla, color: v.color }], "ingreso");
+    await requireColorsAssigned(env, [v], () => "ingreso");
   } catch (err) {
     if (err instanceof HttpError && /inexistente o inactivo/.test(err.message)) throw new HttpError(400, "Sucursal, producto, talla o color inválido.");
     throw err;
@@ -351,6 +354,7 @@ export async function adjustStock(request: Request, env: Env, admin: AuthUser): 
   await requireVariantExists(env, v);
   if (delta > 0) {
     await validateVariants(env, [{ producto: v.producto, talla: v.talla, color: v.color }], "ajuste");
+    await requireColorsAssigned(env, [v], () => "ajuste");
   }
 
   const changes = stockChange(env, {

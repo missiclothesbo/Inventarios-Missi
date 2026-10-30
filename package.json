@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:unit": "node --test scripts/frontend-unit.test.mjs scripts/venta-flow.test.mjs scripts/operaciones-flow.test.mjs scripts/reportes-periodo.test.mjs scripts/usuarios.test.mjs scripts/catalogo.test.mjs scripts/seguridad-config.test.mjs scripts/recepcion.test.mjs"
+    "test:unit": "node --test scripts/frontend-unit.test.mjs scripts/venta-flow.test.mjs scripts/operaciones-flow.test.mjs scripts/reportes-periodo.test.mjs scripts/usuarios.test.mjs scripts/catalogo.test.mjs scripts/seguridad-config.test.mjs scripts/recepcion.test.mjs scripts/colores.test.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

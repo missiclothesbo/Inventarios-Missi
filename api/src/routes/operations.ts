@@ -675,7 +675,7 @@ export async function cambio(request: Request, env: Env, user: AuthUser): Promis
     const tallaId = int(e.talla_id, `reemplazos[${i}].talla_id`);
     const colorId = int(e.color_id, `reemplazos[${i}].color_id`);
     const cantidad = int(e.cantidad, `reemplazos[${i}].cantidad`, 1, 10_000);
-    const [valid] = await validateVariants(env, [{ producto: productoId, talla: tallaId, color: colorId }], () => `reemplazos[${i}]`);
+    const [valid] = await validateVariants(env, [{ producto: productoId, talla: tallaId, color: colorId }], () => `reemplazos[${i}]`, true);
     const precio = e.precio_unitario === undefined || e.precio_unitario === null ? valid.precio_venta : Number(e.precio_unitario);
     if (!Number.isFinite(precio) || precio <= 0) throw badRequest(`reemplazos[${i}]: el modelo no tiene precio; indica precio_unitario.`);
     entregados.push({ productoId, tallaId, colorId, cantidad, precio: round2(precio) });

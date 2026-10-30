@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { RETURN_REASONS, RETURN_REASON_LABELS, type ReturnReason } from "../../lib/catalogo";
+import { colorsForProduct } from "../../lib/colores";
 import HistorialOperaciones from "./HistorialOperaciones";
 import { createPortal } from "react-dom";
 import { CheckCircle2, LoaderCircle, Printer, RotateCcw, Search } from "lucide-react";
@@ -509,7 +510,7 @@ function Cambios() {
                       const disponible = r.producto_id && r.talla_id && r.color_id ? stockDisponible(Number(r.producto_id), Number(r.talla_id), Number(r.color_id)) : null;
                       return (
                         <div key={i} className="grid grid-cols-2 gap-2 md:grid-cols-5">
-                          <select aria-label="Modelo de reemplazo" className={`${INPUT} col-span-2 md:col-span-1`} value={r.producto_id} onChange={(e) => patchForm({ reemplazos: form.reemplazos.map((x, j) => (j === i ? { ...x, producto_id: e.target.value, precio: "" } : x)) })}>
+                          <select aria-label="Modelo de reemplazo" className={`${INPUT} col-span-2 md:col-span-1`} value={r.producto_id} onChange={(e) => patchForm({ reemplazos: form.reemplazos.map((x, j) => (j === i ? { ...x, producto_id: e.target.value, color_id: "", precio: "" } : x)) })}>
                             <option value="">Modelo</option>
                             {products.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
                           </select>
@@ -519,7 +520,7 @@ function Cambios() {
                           </select>
                           <select aria-label="Color de reemplazo" className={INPUT} value={r.color_id} onChange={(e) => patchForm({ reemplazos: form.reemplazos.map((x, j) => (j === i ? { ...x, color_id: e.target.value } : x)) })}>
                             <option value="">Color</option>
-                            {colors.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                            {colorsForProduct(colors, r.producto_id).map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                           </select>
                           <input type="number" inputMode="numeric" aria-label="Cantidad de reemplazo" min={1} className={INPUT} value={r.cantidad} placeholder="Cant." onChange={(e) => patchForm({ reemplazos: form.reemplazos.map((x, j) => (j === i ? { ...x, cantidad: e.target.value } : x)) })} />
                           <input type="number" inputMode="decimal" aria-label="Precio de reemplazo" min={0} step="0.01" className={INPUT} value={r.precio} placeholder={`Precio (${money(precioModelo(Number(r.producto_id)))})`} onChange={(e) => patchForm({ reemplazos: form.reemplazos.map((x, j) => (j === i ? { ...x, precio: e.target.value } : x)) })} />

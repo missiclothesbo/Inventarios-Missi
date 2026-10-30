@@ -3,6 +3,7 @@ import {
   BarChart3,
   Boxes,
   History,
+  Palette,
   LayoutDashboard,
   RotateCcw,
   ShoppingCart,
@@ -31,6 +32,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Traspasos", short: "Traspasos", path: "/traspasos", icon: ArrowLeftRight },
   { label: "Movimientos", short: "Movimientos", path: "/movimientos", icon: History },
   { label: "Reportes", short: "Reportes", path: "/reportes", icon: BarChart3 },
+  { label: "Colores", short: "Colores", path: "/colores", icon: Palette, adminOnly: true },
   { label: "Usuarios", short: "Usuarios", path: "/usuarios", icon: Users, adminOnly: true },
 ];
 

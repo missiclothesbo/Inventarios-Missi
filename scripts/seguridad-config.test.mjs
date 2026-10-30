@@ -40,6 +40,17 @@ describe("las pruebas y scripts nunca apuntan a producción", () => {
         assert.ok(!/\b(INSERT\s+INTO|UPDATE\s+\w+\s+SET|DELETE\s+FROM|DROP\s+(TABLE|INDEX|TRIGGER|VIEW)|ALTER\s+TABLE|TRUNCATE)\b/i.test(text.replace(/#.*$/gm, "")), "no contiene sentencias de escritura");
         continue;
       }
+      if (rel(f) === "api/scripts/prod-account.mjs") {
+        // Única herramienta que ESCRIBE en la base real: solo la ejecuta una persona en su terminal. Exige --confirm,
+        // pide la contraseña oculta (nunca por argumentos ni variables de entorno) y no tiene sentencias destructivas de esquema.
+        const text = read(f);
+        assert.match(text, /Repite el comando con --confirm/, "exige --confirm para escribir");
+        assert.match(text, /readHidden/, "la contraseña se pide oculta");
+        assert.ok(!/process\.env\.[A-Z_]*PASS/i.test(text), "no lee la contraseña de variables de entorno");
+        assert.ok(!/\b(DROP\s+(TABLE|INDEX|TRIGGER|VIEW)|TRUNCATE|ALTER\s+TABLE)\b/i.test(text), "sin sentencias destructivas de esquema");
+        assert.ok(!/DELETE\s+FROM\s+(?!sesiones|intentos_login)/i.test(text), "solo borra sesiones e intentos de login de la cuenta cambiada");
+        continue;
+      }
       read(f).split("\n").forEach((line, i) => {
         if (/--remote\b/.test(line)) {
           const isRejectionCheck = rel(f) === "api/test/local-account.test.mjs" && /\bremote\s*=\s*node\(/.test(line);
@@ -57,6 +68,7 @@ describe("las pruebas y scripts nunca apuntan a producción", () => {
   it("todo archivo de pruebas o scripts que invoca wrangler d1 usa --local (nunca la base remota)", () => {
     let checked = 0;
     for (const f of files.filter((x) => /api[\\/](test|scripts)/.test(x))) {
+      if (rel(f) === "api/scripts/prod-account.mjs") continue; // verificado arriba: escritura remota solo a mano y con --confirm
       const text = read(f);
       if (!/["']d1["']/.test(text)) continue;
       checked++;

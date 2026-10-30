@@ -10,6 +10,7 @@ import * as movements from "./routes/movements";
 import * as analytics from "./routes/analytics";
 import * as national from "./routes/national";
 import * as lots from "./routes/lots";
+import * as colors from "./routes/colors";
 
 type Handler = (ctx: { request: Request; env: Env; url: URL; user: AuthUser; params: string[] }) => Promise<Response>;
 
@@ -37,7 +38,9 @@ const routes: Route[] = [
   route("GET", "/api/departamentos", ({ env }) => catalog.departamentos(env)),
   route("GET", "/api/productos", ({ env }) => catalog.productos(env)),
   route("GET", "/api/tallas", ({ env }) => catalog.tallas(env)),
-  route("GET", "/api/colores", ({ env }) => catalog.colores(env)),
+  route("GET", "/api/colores", ({ env, url, user }) => colors.listColors(url, env, user)),
+  route("POST", "/api/colores", admin(({ request, env, user }) => colors.createColor(request, env, user))),
+  route("PATCH", "/api/colores/:id", admin(({ request, env, user, params }) => colors.updateColor(request, env, user, Number(params[0])))),
   route("POST", "/api/productos", admin(({ request, env, user }) => catalog.createProduct(request, env, user))),
   route("PATCH", "/api/productos/:id", admin(({ request, env, params }) => catalog.updateProductPrice(request, env, Number(params[0])))),
   route("POST", "/api/productos/:id/foto", admin(({ request, env, user, params }) => catalog.uploadPhoto(request, env, user, Number(params[0])))),

@@ -3,6 +3,7 @@ import { MinusCircle } from "lucide-react";
 
 import { FILTRO_INPUT } from "../../components/filtros/FiltroPeriodo";
 import { EXIT_REASONS, EXIT_REASON_LABELS, sortSizeLabels, type ExitReason } from "../../lib/catalogo";
+import { colorsForProduct } from "../../lib/colores";
 import { registerStockAdjustment, registerStockExit } from "../../services/movements.service";
 import type { CatalogItem, Product } from "../../services/product.service";
 
@@ -92,7 +93,7 @@ function AjustesInventario({ branchId, branchName, products, sizes, colors, onDo
           </label>
           <label className="text-xs font-medium text-gray-600">
             Modelo
-            <select className={`${FILTRO_INPUT} mt-1`} value={producto} onChange={(e) => setProducto(e.target.value)}>
+            <select className={`${FILTRO_INPUT} mt-1`} value={producto} onChange={(e) => { setProducto(e.target.value); setColor(""); }}>
               <option value="">Selecciona</option>
               {products.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
             </select>
@@ -108,7 +109,8 @@ function AjustesInventario({ branchId, branchName, products, sizes, colors, onDo
             Color
             <select className={`${FILTRO_INPUT} mt-1`} value={color} onChange={(e) => setColor(e.target.value)}>
               <option value="">Selecciona</option>
-              {colors.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+              {/* Sumar unidades solo con colores asignados al modelo; restar/sacar permite limpiar stock histórico de cualquier color. */}
+              {(kind === "ajuste_mas" ? colorsForProduct(colors, producto) : colors.filter((c) => c.estado)).map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
             </select>
           </label>
           <label className="text-xs font-medium text-gray-600">

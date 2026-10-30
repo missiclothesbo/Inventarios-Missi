@@ -1371,6 +1371,7 @@ describe("tallas oficiales de pantalón", () => {
     sql("INSERT INTO productos (nombre, categoria, precio_venta) VALUES ('Cinturón prueba', 'Accesorios', 50)");
     const accesorio = idOf("productos", "nombre", "Cinturón prueba");
     const xl = idOf("tallas", "nombre", "XL-hist");
+    sql(`INSERT INTO producto_colores (producto_id, color_id) VALUES (${accesorio}, 1)`); // un producto creado por SQL directo no tiene colores asignados
     must(await ingreso(tokens.admin, { sucursal_id: 1, producto_id: accesorio, talla_id: xl, color_id: 1, cantidad: 2 }));
     assert.equal(stock(1, accesorio, xl, 1), 2);
   });

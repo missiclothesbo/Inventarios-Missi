@@ -301,7 +301,7 @@ export interface VariantInfo {
  * Verifica que cada variante exista y esté activa y que, para pantalones, la talla sea una de las oficiales.
  * Se usa en TODA operación que crea o mueve inventario nuevo (ingresos, ventas, traspasos, reemplazos de cambio).
  */
-export async function validateVariants(env: Env, variants: VariantRef[], label: string | ((i: number) => string)): Promise<VariantInfo[]> {
+export async function validateVariants(env: Env, variants: VariantRef[], label: string | ((i: number) => string), allowInactiveColors = false): Promise<VariantInfo[]> {
   if (variants.length === 0) return [];
   const rows = await env.DB.batch(
     variants.map((v) =>
@@ -309,9 +309,9 @@ export async function validateVariants(env: Env, variants: VariantRef[], label: 
         .prepare(
           `SELECT p.nombre AS producto, p.categoria, t.nombre AS talla, c.nombre AS color, p.precio_venta
              FROM productos p, tallas t, colores c
-            WHERE p.id = ? AND p.activo = 1 AND t.id = ? AND c.id = ? AND c.estado = 1`,
+            WHERE p.id = ? AND p.activo = 1 AND t.id = ? AND c.id = ? AND (c.estado = 1 OR ?)`,
         )
-        .bind(v.producto, v.talla, v.color),
+        .bind(v.producto, v.talla, v.color, allowInactiveColors ? 1 : 0),
     ),
   );
 

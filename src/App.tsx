@@ -14,6 +14,7 @@ import Movimientos from "./pages/Movimientos/Movimientos";
 import Cambios from "./pages/Cambios/Cambios";
 import ApiDiagnostico from "./pages/Diagnostico/ApiDiagnostico";
 import Usuarios from "./pages/Usuarios/Usuarios";
+import Colores from "./pages/Colores/Colores";
 import { SucursalProvider } from "./context/SucursalProvider";
 import { useSucursal } from "./context/useSucursal";
 import { AuthProvider } from "./context/AuthProvider";
@@ -89,6 +90,7 @@ function Shell() {
               <Route path="/movimientos" element={<Movimientos />} />
               <Route path="/cambios" element={<Cambios />} />
               <Route path="/reportes" element={<Reportes />} />
+              <Route path="/colores" element={<AdminOnly><Colores /></AdminOnly>} />
               <Route path="/usuarios" element={<AdminOnly><Usuarios /></AdminOnly>} />
               <Route path="/diagnostico-api" element={<ApiDiagnostico />} />
 

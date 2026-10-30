@@ -412,7 +412,7 @@ export async function createSale(request: Request, env: Env, user: AuthUser): Pr
           `SELECT p.precio_venta, p.categoria, i.cantidad, p.nombre AS producto, t.nombre AS talla, c.nombre AS color
              FROM productos p
              JOIN tallas t ON t.id = ?
-             JOIN colores c ON c.id = ? AND c.estado = 1
+             JOIN colores c ON c.id = ?
              LEFT JOIN inventario i ON i.producto_id = p.id AND i.talla_id = t.id AND i.color_id = c.id AND i.sucursal_id = ?
             WHERE p.id = ? AND p.activo = 1`,
         )

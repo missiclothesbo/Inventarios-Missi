@@ -1,0 +1,25 @@
+{
+  // PRODUCCIÓN. Worker NUEVO "missi-api" (no reemplaza al antiguo "fancy-firefly-9028", que no se toca).
+  // Despliegue: cd api && npx wrangler deploy -c wrangler.production.jsonc   (solo con aprobación y tras migrar la D1)
+  "name": "missi-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-18",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  "vars": {
+    // Solo el sitio publicado (sin localhost). CORS rechaza cualquier otro origen.
+    "ALLOWED_ORIGINS": "https://missi-inventario.pages.dev",
+    "SESSION_TTL_HOURS": "12"
+  },
+  // R2 aún NO está activado en la cuenta (error 10042). Cuando se active y exista el bucket "missi-product-photos",
+  // añadir:  "r2_buckets": [{ "binding": "PHOTOS", "bucket_name": "missi-product-photos" }]
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "inventarios-missi",
+      "database_id": "2384fad4-6c9d-4e60-821e-91ce3ac89cf5",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

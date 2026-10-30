@@ -19,6 +19,8 @@ export interface CatalogItem {
   oficial_pantalon?: boolean;
   /** Rótulo anterior de la talla, si alguna vez cambió (auditoría). */
   etiqueta_historica?: string | null;
+  /** Solo colores: modelos a los que está asignado (los administra el administrador en «Colores»). */
+  producto_ids?: number[];
 }
 
 /** Tallas que se pueden elegir para inventario o transacciones NUEVAS (las históricas solo se leen). */
@@ -52,6 +54,7 @@ export async function uploadProductPhoto(productId: number, file: File): Promise
 export async function createProduct(
   nombre: string,
   precioVenta = 0,
+  colores?: number[],
 ): Promise<Product> {
   const productName = nombre.trim();
 
@@ -62,6 +65,8 @@ export async function createProduct(
   return api.post<Product>("/api/productos", {
     nombre: productName,
     precio_venta: precioVenta,
+    // Los colores elegidos quedan asignados al modelo nuevo (si no se indican, el servidor asigna todos los activos).
+    ...(colores ? { colores } : {}),
   });
 }
 

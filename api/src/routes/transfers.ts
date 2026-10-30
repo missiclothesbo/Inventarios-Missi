@@ -359,7 +359,8 @@ export async function createTransfer(request: Request, env: Env, me: AuthUser): 
     return it;
   });
 
-  await validateVariants(env, items, "items");
+  // Mover stock que ya existe: un color desactivado no impide traspasarlo (el historial no se rompe).
+  await validateVariants(env, items, "items", true);
 
   const byKey = "(SELECT id FROM traspasos WHERE idempotency_key = ?)";
   try {
