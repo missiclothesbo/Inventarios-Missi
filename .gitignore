@@ -40,3 +40,5 @@ backups/
 api/.wrangler/
 api/.dev.vars*
 d1-audit-output.txt
+
+respaldo-antes-0014.sql
